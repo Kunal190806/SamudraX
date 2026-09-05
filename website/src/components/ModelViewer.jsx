@@ -66,16 +66,11 @@ const ModelInner = ({
   animateTurbine,
   turbineYOffset = 0,
   scaleMultiplier = 1,
-  explodeProgress = 0,
-  targetZoom,
   onLoaded
 }) => {
   const outer = useRef(null);
   const inner = useRef(null);
   const { camera, gl } = useThree();
-
-  const origPos = useRef(new Map());
-  const curExplode = useRef(0);
 
   const vel = useRef({ x: 0, y: 0 });
   const tPar = useRef({ x: 0, y: 0 });
@@ -103,11 +98,7 @@ const ModelInner = ({
     g.position.set(-sphere.center.x, -sphere.center.y, -sphere.center.z);
     g.scale.setScalar(s);
 
-    origPos.current.clear();
     g.traverse(o => {
-      if (!origPos.current.has(o)) {
-        origPos.current.set(o, o.position.clone());
-      }
       if (o.isMesh) {
         if (o.name && /^Cylinder\.2(0[6-9]|1[0-4])$/.test(o.name)) {
           o.visible = false;
@@ -327,56 +318,6 @@ const ModelInner = ({
       need = true;
     }
 
-    if (targetZoom !== undefined && camera.isPerspectiveCamera) {
-      camera.position.z = THREE.MathUtils.damp(camera.position.z, targetZoom, 8, dt);
-      need = true;
-    }
-
-    if (explodeProgress !== undefined) {
-      curExplode.current = THREE.MathUtils.damp(curExplode.current, explodeProgress, 8, dt);
-      const ep = curExplode.current;
-
-      if (inner.current && (ep > 0.0001 || Math.abs(curExplode.current - explodeProgress) > 0.0005)) {
-        need = true;
-        inner.current.traverse(o => {
-          const base = origPos.current.get(o);
-          if (!base) return;
-          const name = (o.name || '').toLowerCase();
-
-          let dy = 0;
-          if (name.includes('sphere') || name.startsWith('cylinder.0') || name.startsWith('cylinder.1')) {
-            // Mast & Atmospheric Sensors
-            dy = ep * 1.15;
-          } else if (name.includes('solar')) {
-            // Solar Panels
-            dy = ep * 0.68;
-          } else if (name.includes('lid') || name.includes('torus.00')) {
-            // Electronics Bay Lid
-            dy = ep * 0.28;
-          } else if (name.includes('turbine') || name.includes('blade') || name.includes('hub') || name.includes('shaft')) {
-            // VAWT Turbine
-            dy = -ep * 0.50;
-          } else if (name.includes('torus.01') || name.includes('bracket')) {
-            // Protective Impact Cage
-            dy = -ep * 1.05;
-          } else if (
-            name.includes('sensor') ||
-            name.includes('salinity') ||
-            name.includes('oxygen') ||
-            name.includes('ph') ||
-            name.includes('depth') ||
-            name.includes('turbidity') ||
-            name.includes('temp')
-          ) {
-            // Underwater Scientific Keel Sensors
-            dy = -ep * 1.35;
-          }
-
-          o.position.y = base.y + dy;
-        });
-      }
-    }
-
     if (animateTurbine && inner.current) {
       inner.current.traverse(o => {
         if (o.name && (o.name.includes('Turbine_Blade') || o.name.includes('Turbine_Hub') || o.name.includes('Turbine_Shaft'))) {
@@ -442,8 +383,6 @@ const ModelViewer = ({
   animateTurbine = false,
   turbineYOffset = 0,
   scaleMultiplier = 1,
-  explodeProgress = 0,
-  targetZoom,
   onModelLoaded
 }) => {
   useEffect(() => void useGLTF.preload(url), [url]);
@@ -556,8 +495,6 @@ const ModelViewer = ({
             animateTurbine={animateTurbine}
             turbineYOffset={turbineYOffset}
             scaleMultiplier={scaleMultiplier}
-            explodeProgress={explodeProgress}
-            targetZoom={targetZoom || camZ}
             onLoaded={onModelLoaded}
           />
         </Suspense>
