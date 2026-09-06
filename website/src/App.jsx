@@ -29,7 +29,7 @@ function useWindowWidth() {
   return width;
 }
 
-export default function App() {
+function App() {
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
   const [scrolled, setScrolled] = useState(false);
