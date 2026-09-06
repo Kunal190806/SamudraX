@@ -288,18 +288,19 @@ function App() {
             </div>
 
             {/* Right: exploded model with labels */}
-            <div className="exploded-viewer-container" style={{ position: 'relative', width: '100%', height: '700px' }}>
+            <div className="exploded-viewer-container" style={{ position: 'relative', width: '100%', height: '700px', overflow: 'hidden' }}>
               <ModelViewer
                 url="/models/samudrax-exploded-v8.glb"
                 width="100%"
                 height="700px"
                 autoRotate={false}
-                key="exploded-v-18"
+                key="exploded-autoframe"
+                autoFrame={true}
                 defaultZoom={1.3}
                 defaultRotationX={-10}
                 defaultRotationY={0}
                 modelYOffset={0}
-                scaleMultiplier={1.8}
+                scaleMultiplier={1}
                 enableManualZoom={false}
                 enableMouseParallax={false}
                 enableHoverRotation={false}
