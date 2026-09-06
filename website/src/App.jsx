@@ -294,11 +294,12 @@ function App() {
                 width="100%"
                 height="680px"
                 autoRotate={false}
-                key="exploded-viewer-095"
-                defaultZoom={0.95}
+                key="exploded-viewer-scale"
+                defaultZoom={1.3}
                 defaultRotationX={-10}
                 defaultRotationY={0}
                 modelYOffset={0}
+                scaleMultiplier={1.4}
                 enableManualZoom={false}
                 animateTurbine={true}
               />
