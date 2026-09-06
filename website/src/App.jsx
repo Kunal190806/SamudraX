@@ -304,21 +304,21 @@ function App() {
               {/* Component Interactive Callout Labels */}
               <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
                 {[
-                  { top: '12%', left: '65%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
-                  { top: '21%', left: '65%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
-                  { top: '30%', left: '65%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
-                  { top: '38%', left: '12%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
-                  { top: '46%', left: '12%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
-                  { top: '55%', left: '65%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
-                  { top: '64%', left: '65%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
-                  { top: '74%', left: '12%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
+                  { top: '12%', pos: '65%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
+                  { top: '21%', pos: '65%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
+                  { top: '30%', pos: '65%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
+                  { top: '38%', pos: '65%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
+                  { top: '46%', pos: '65%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
+                  { top: '55%', pos: '65%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
+                  { top: '64%', pos: '65%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
+                  { top: '74%', pos: '65%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
                 ].map((item) => (
                   <div
                     key={item.title}
                     style={{
                       position: 'absolute',
                       top: item.top,
-                      left: item.left,
+                      ...(item.side === 'left' ? { right: item.pos } : { left: item.pos }),
                       transform: 'translateY(-50%)',
                       display: 'flex',
                       alignItems: 'center',
