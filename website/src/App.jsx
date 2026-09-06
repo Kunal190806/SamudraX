@@ -272,8 +272,8 @@ function App() {
       {/* Hybrid Energy */}
       <section id="energy">
         <FadeIn>
-          <div className="content-grid" style={{ alignItems: 'start' }}>
-            {/* Left: text + diagram */}
+          {/* Text + Flowchart on top in two columns */}
+          <div className="content-grid" style={{ alignItems: 'start', marginBottom: '3rem' }}>
             <div className="content-text">
               <h3>Hybrid <span className="text-cyan">Energy Architecture</span></h3>
               <p>
@@ -282,78 +282,78 @@ function App() {
               <p>
                 The turbine is not a direct replacement for solar, nor is it restricted only to the North. The system can intelligently choose and use available energy sources depending on environmental conditions.
               </p>
-              <div style={{ marginTop: '2rem' }}>
-                <EnergyFlowchart />
-              </div>
             </div>
+            <div>
+              <EnergyFlowchart />
+            </div>
+          </div>
 
-            {/* Right: exploded model with labels */}
-            <div className="exploded-viewer-container" style={{ position: 'relative', width: '100%', height: '700px' }}>
-              <ModelViewer
-                url="/models/samudrax-exploded-v8.glb"
-                width="100%"
-                height="700px"
-                autoRotate={false}
-                key="exploded-autoframe"
-                autoFrame={true}
-                defaultZoom={1.3}
-                defaultRotationX={-10}
-                defaultRotationY={0}
-                modelYOffset={0}
-                scaleMultiplier={1}
-                enableManualZoom={false}
-                enableMouseParallax={false}
-                enableHoverRotation={false}
-                animateTurbine={true}
-              />
-              {/* Component Interactive Callout Labels */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                {[
-                  { top: '8%',  pos: '55%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
-                  { top: '18%', pos: '55%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
-                  { top: '27%', pos: '55%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
-                  { top: '35%', pos: '55%', side: 'right', title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
-                  { top: '43%', pos: '55%', side: 'right', title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
-                  { top: '55%', pos: '55%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
-                  { top: '68%', pos: '55%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
-                  { top: '82%', pos: '55%', side: 'right', title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
-                ].map((item) => (
-                  <div
-                    key={item.title}
-                    style={{
-                      position: 'absolute',
-                      top: item.top,
-                      ...(item.side === 'left' ? { right: item.pos } : { left: item.pos }),
-                      transform: 'translateY(-50%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      zIndex: 10,
-                    }}
-                  >
-                    {item.side === 'left' && (
-                      <>
-                        <div className="callout-card left-align">
-                          <span className="callout-title">{item.title}</span>
-                          <span className="callout-sub">{item.sub}</span>
-                        </div>
-                        <div className="callout-line left-line" />
-                        <div className="callout-pin" />
-                      </>
-                    )}
-                    {item.side === 'right' && (
-                      <>
-                        <div className="callout-pin" />
-                        <div className="callout-line right-line" />
-                        <div className="callout-card">
-                          <span className="callout-title">{item.title}</span>
-                          <span className="callout-sub">{item.sub}</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+          {/* Full-width exploded model with labels */}
+          <div className="exploded-viewer-container" style={{ position: 'relative', width: '100%', height: '750px' }}>
+            <ModelViewer
+              url="/models/samudrax-exploded-v8.glb"
+              width="100%"
+              height="750px"
+              autoRotate={false}
+              key="exploded-fullwidth"
+              autoFrame={true}
+              defaultZoom={1.3}
+              defaultRotationX={-10}
+              defaultRotationY={0}
+              modelYOffset={0}
+              scaleMultiplier={1}
+              enableManualZoom={false}
+              enableMouseParallax={false}
+              enableHoverRotation={false}
+              animateTurbine={true}
+            />
+            {/* Component Interactive Callout Labels */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+              {[
+                { top: '8%',  pos: '62%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
+                { top: '18%', pos: '62%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
+                { top: '27%', pos: '62%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
+                { top: '35%', pos: '62%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
+                { top: '43%', pos: '62%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
+                { top: '55%', pos: '62%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
+                { top: '68%', pos: '62%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
+                { top: '82%', pos: '62%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  style={{
+                    position: 'absolute',
+                    top: item.top,
+                    ...(item.side === 'left' ? { right: item.pos } : { left: item.pos }),
+                    transform: 'translateY(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    zIndex: 10,
+                  }}
+                >
+                  {item.side === 'left' && (
+                    <>
+                      <div className="callout-card left-align">
+                        <span className="callout-title">{item.title}</span>
+                        <span className="callout-sub">{item.sub}</span>
+                      </div>
+                      <div className="callout-line left-line" />
+                      <div className="callout-pin" />
+                    </>
+                  )}
+                  {item.side === 'right' && (
+                    <>
+                      <div className="callout-pin" />
+                      <div className="callout-line right-line" />
+                      <div className="callout-card">
+                        <span className="callout-title">{item.title}</span>
+                        <span className="callout-sub">{item.sub}</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </FadeIn>
