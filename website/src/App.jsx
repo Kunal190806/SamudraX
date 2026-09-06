@@ -294,7 +294,7 @@ function App() {
                 width="100%"
                 height="680px"
                 autoRotate={false}
-                defaultZoom={5.8}
+                defaultZoom={1.3}
                 defaultRotationX={-10}
                 defaultRotationY={0}
                 modelYOffset={0.08}
