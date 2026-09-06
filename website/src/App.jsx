@@ -294,7 +294,8 @@ function App() {
                 width="100%"
                 height="680px"
                 autoRotate={false}
-                defaultZoom={0.9}
+                key="exploded-viewer-095"
+                defaultZoom={0.95}
                 defaultRotationX={-10}
                 defaultRotationY={0}
                 modelYOffset={0}
@@ -304,14 +305,14 @@ function App() {
               {/* Component Interactive Callout Labels */}
               <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
                 {[
-                  { top: '5%',  pos: '72%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
-                  { top: '18%', pos: '72%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
-                  { top: '31%', pos: '72%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
-                  { top: '43%', pos: '72%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
-                  { top: '54%', pos: '72%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
-                  { top: '67%', pos: '72%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
-                  { top: '80%', pos: '72%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
-                  { top: '95%', pos: '72%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
+                  { top: '7.5%', pos: '75%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
+                  { top: '20%',  pos: '75%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
+                  { top: '32%',  pos: '75%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
+                  { top: '43%',  pos: '75%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
+                  { top: '54%',  pos: '75%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
+                  { top: '66%',  pos: '75%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
+                  { top: '79%',  pos: '75%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
+                  { top: '92.5%',pos: '75%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
                 ].map((item) => (
                   <div
                     key={item.title}
