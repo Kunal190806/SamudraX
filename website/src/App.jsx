@@ -312,11 +312,11 @@ function App() {
                   { top: '8%',  pos: '55%', side: 'right', title: 'Atmospheric Sensors', sub: 'GPS / GNSS & Weather Mast' },
                   { top: '18%', pos: '55%', side: 'right', title: 'Integrated Solar Panels', sub: 'Marine Monocrystalline Deck' },
                   { top: '27%', pos: '55%', side: 'right', title: 'Waterproof Electronics', sub: 'RPi + ESP32 Control Bay' },
-                  { top: '35%', pos: '55%', side: 'left',  title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
-                  { top: '43%', pos: '55%', side: 'left',  title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
+                  { top: '35%', pos: '55%', side: 'right', title: 'Main Floating Hull', sub: 'Octagonal Marine Composite' },
+                  { top: '43%', pos: '55%', side: 'right', title: 'LiFePO4 Battery Pack', sub: 'Smart BMS Energy Storage' },
                   { top: '55%', pos: '55%', side: 'right', title: 'Hydrokinetic Turbine', sub: '3-Blade Submerged Harvester' },
                   { top: '68%', pos: '55%', side: 'right', title: 'Protective Sensor Cage', sub: 'High-Impact Keel Guard' },
-                  { top: '82%', pos: '55%', side: 'left',  title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
+                  { top: '82%', pos: '55%', side: 'right', title: 'Underwater Sensors', sub: '6-Parameter Scientific Probe' },
                 ].map((item) => (
                   <div
                     key={item.title}
