@@ -19,7 +19,19 @@ const FadeIn = ({ children, delay = 0 }) => (
   </motion.div>
 );
 
-function App() {
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return width;
+}
+
+export default function App() {
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [heroProgress, setHeroProgress] = useState(0);
@@ -92,12 +104,14 @@ function App() {
             />
           </div>
 
-          {/* Layer 3: Hero text (on top of model) */}
           <div
             className="hero-content"
             style={{
               opacity: heroProgress > 0.5 ? Math.max(0, 1 - (heroProgress - 0.5) * 4) : 1,
               pointerEvents: heroProgress > 0.6 ? 'none' : 'auto',
+              top: isMobile ? 'auto' : '50%',
+              bottom: isMobile ? '10%' : 'auto',
+              transform: isMobile ? 'none' : 'translateY(-50%)',
             }}
           >
             <motion.div
