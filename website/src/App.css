@@ -245,11 +245,13 @@ section {
 .hero-model-container {
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
-  width: 65%;
+  bottom: 0;
+  width: 100%;
   height: 100%;
-  z-index: 1;
-  pointer-events: none;
+  z-index: 2;
+  pointer-events: auto;
 }
 .hero-model-container canvas {
   width: 100% !important;

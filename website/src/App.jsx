@@ -21,6 +21,7 @@ const FadeIn = ({ children, delay = 0 }) => (
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [heroProgress, setHeroProgress] = useState(0);
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -94,7 +95,15 @@ function App() {
               opacity={0.6}
             />
           </div>
-          <div className="hero-content">
+          <div
+            className="hero-content"
+            style={{
+              opacity: Math.max(0, 1 - heroProgress * 2.4),
+              transform: `translateY(calc(-50% - ${heroProgress * 60}px))`,
+              pointerEvents: heroProgress > 0.35 ? 'none' : 'auto',
+              transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -166,28 +175,15 @@ function App() {
               transition={{ duration: 1, delay: 1 }}
             >
               <span className="scroll-arrow">↓</span>
-              <span>SCROLL TO DISASSEMBLE PLATFORM</span>
+              <span>SCROLL TO EXPLODE PLATFORM</span>
             </motion.div>
           </div>
 
           <div className="hero-model-container">
             <ScrollExplodeViewer
-              assembledUrl="/models/samudrax-complete-v8.glb"
-              explodedUrl="/models/samudrax-exploded-v8.glb"
               sectionRef={heroRef}
-              width="100%"
-              height="100vh"
               autoRotate={true}
-              defaultZoom={3.6}
-              modelYOffset={0.08}
-              explodedZoom={5.8}
-              explodedYOffset={0.25}
-              turbineYOffset={0.15}
-              defaultRotationX={-15}
-              defaultRotationY={0}
-              enableMouseParallax={true}
-              enableManualZoom={false}
-              animateTurbine={true}
+              onProgressChange={setHeroProgress}
             />
           </div>
         </div>

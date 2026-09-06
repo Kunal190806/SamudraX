@@ -12,7 +12,7 @@ ehthumbs.db
 Thumbs.db
 
 # 3D Model Source Files (Blender / CAD / Heavy Meshes)
-models/
+/models/
 *.blend
 *.blend1
 *.blend2
@@ -28,6 +28,7 @@ website/public/models/*
 # Keep only the active production GLB models required by the website
 !website/public/models/samudrax-complete-v8.glb
 !website/public/models/samudrax-exploded-v8.glb
+!website/public/models/samudrax-scroll-explode.glb
 
 # Large Video Files & Renders (Exceeds Git / GitHub 100MB file limits)
 Videos/
