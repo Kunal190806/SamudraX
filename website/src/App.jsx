@@ -98,9 +98,9 @@ function App() {
           <div
             className="hero-content"
             style={{
-              opacity: Math.max(0, 1 - heroProgress * 2.4),
-              transform: `translateY(calc(-50% - ${heroProgress * 60}px))`,
-              pointerEvents: heroProgress > 0.35 ? 'none' : 'auto',
+              opacity: Math.max(0, 1 - Math.max(0, heroProgress - 0.4) * 2),
+              transform: `translateY(calc(-50% - ${heroProgress * 40}px))`,
+              pointerEvents: heroProgress > 0.7 ? 'none' : 'auto',
               transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
             }}
           >

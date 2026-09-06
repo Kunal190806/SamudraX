@@ -10,17 +10,20 @@ useGLTF.preload('/models/samudrax-scroll-explode.glb');
 /**
  * AnimatedExplodeModel
  * Binds the 556-part explosion animation to the scroll progress.
- * Assembles at scroll=0, explodes smoothly as user scrolls,
- * and glides into center stage.
+ * Assembles at scroll=0, explodes smoothly as user scrolls.
  */
 function AnimatedExplodeModel({ progressRef, autoRotate = true }) {
   const gltf = useGLTF('/models/samudrax-scroll-explode.glb');
   const groupRef = useRef();
   const currentP = useRef(0);
 
-  // Clone scene so materials/transforms are clean
+  // Clone scene so materials/transforms are clean and properly centered
   const clonedScene = useMemo(() => {
     const s = gltf.scene.clone(true);
+    // Center the model at origin (0, 0, 0)
+    // The native Blender coordinates have the platform center at y = -4.80
+    s.position.set(0, 4.80, 0);
+
     s.traverse((o) => {
       if (o.isMesh) {
         o.castShadow = true;
@@ -58,9 +61,11 @@ function AnimatedExplodeModel({ progressRef, autoRotate = true }) {
     // Scrub animation time
     mixer.setTime(clamped * duration);
 
-    // Dynamic centering: on desktop start on right (x=0.55), glide to center (x=0) as text fades
+    // Responsive positioning:
+    // On desktop, keep model framed on the right at scroll 0 (x=0.35),
+    // and gently center (x=0.1) as text softens
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 900;
-    const targetX = isMobile ? 0 : 0.55 * (1 - Math.min(1, clamped * 1.5));
+    const targetX = isMobile ? 0 : 0.35 * (1 - clamped * 0.6);
     groupRef.current.position.x = targetX;
 
     // Subtle gentle auto-rotation around Y
@@ -69,8 +74,11 @@ function AnimatedExplodeModel({ progressRef, autoRotate = true }) {
     }
   });
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 900;
+  const scale = isMobile ? 0.35 : 0.44;
+
   return (
-    <group ref={groupRef} position={[0.55, 0, 0]} scale={0.42}>
+    <group ref={groupRef} position={[isMobile ? 0 : 0.35, 0, 0]} scale={scale}>
       <primitive object={clonedScene} />
     </group>
   );
@@ -108,8 +116,6 @@ export default function ScrollExplodeViewer({
           const maxScroll = Math.max(1, sectionH - windowH);
 
           // We map 0 -> 0.85 of the hero scroll travel to 0 -> 1.0 explosion
-          // This gives the user time to inspect the fully exploded platform
-          // before the section unpins and travels down to #challenge.
           const p = Math.max(0, Math.min(1, scrolled / (maxScroll * 0.85)));
           progressRef.current = p;
           setHudProgress(p);
@@ -131,7 +137,7 @@ export default function ScrollExplodeViewer({
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}>
       <Canvas
-        camera={{ position: [0, 0.15, 3.8], fov: 42 }}
+        camera={{ position: [0, 0, 3.8], fov: 45 }}
         gl={{
           antialias: true,
           alpha: true,
@@ -140,26 +146,26 @@ export default function ScrollExplodeViewer({
         dpr={[1, 2]}
       >
         {/* Lights */}
-        <ambientLight intensity={1.3} />
+        <ambientLight intensity={1.5} />
         <directionalLight
           position={[5, 8, 5]}
-          intensity={2.2}
+          intensity={2.5}
           color="#ffffff"
           castShadow
         />
         <directionalLight
           position={[-5, 4, 3]}
-          intensity={1.2}
+          intensity={1.5}
           color="#00e5ff"
         />
         <directionalLight
           position={[0, -5, -4]}
-          intensity={1.0}
+          intensity={1.2}
           color="#0070fe"
         />
-        <pointLight position={[0, 2, 2]} intensity={0.8} color="#ffffff" />
+        <pointLight position={[0, 2, 2]} intensity={1.0} color="#ffffff" />
 
-        <Environment preset="city" environmentIntensity={0.6} />
+        <Environment preset="city" environmentIntensity={0.8} />
 
         <Suspense fallback={null}>
           <AnimatedExplodeModel
