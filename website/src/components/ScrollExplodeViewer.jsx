@@ -27,15 +27,17 @@ function AnimatedModel({ progressRef }) {
   }, []);
 
   // Compute bounding box at t=0, auto-center and auto-scale
-  const { offsetY, scaleFactor } = useMemo(() => {
+  const { offsetX, offsetY, offsetZ, scaleFactor } = useMemo(() => {
     scene.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
     return {
-      offsetY: -center.y + (isMobile ? -1.5 : 0),      // shift model lower on mobile so it doesn't bunch at the top
-      scaleFactor: (isMobile ? 1.6 : 1.0) / maxDim // make model larger on mobile
+      offsetX: 0,
+      offsetY: -center.y + (isMobile ? -1.2 : 0),      // shift model lower on mobile
+      offsetZ: 0,
+      scaleFactor: (isMobile ? 1.8 : 1.0) / maxDim // slightly larger for mobile
     };
   }, [scene, isMobile]);
 
@@ -74,7 +76,7 @@ function AnimatedModel({ progressRef }) {
 
   return (
     <group ref={wrapperRef} scale={scaleFactor} rotation={[0, -Math.PI / 4, 0]}>
-      <group position={[0, offsetY, 0]}>
+      <group position={[offsetX, offsetY, offsetZ]}>
         <primitive object={scene} />
       </group>
     </group>

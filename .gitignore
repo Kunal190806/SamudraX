@@ -31,9 +31,9 @@ website/public/models/*
 !website/public/models/samudrax-scroll-explode.glb
 
 # Large Video Files & Renders (Exceeds Git / GitHub 100MB file limits)
-Videos/
-website/public/videos/
-*.mp4
+/Videos/
+website/public/videos/*
+!website/public/videos/turbine-web.mp4
 *.mov
 *.mkv
 *.avi

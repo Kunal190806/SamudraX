@@ -112,6 +112,10 @@ function App() {
               top: isMobile ? 'auto' : '50%',
               bottom: isMobile ? '10%' : 'auto',
               transform: isMobile ? 'none' : 'translateY(-50%)',
+              textAlign: isMobile ? 'center' : 'left',
+              display: isMobile ? 'flex' : 'block',
+              flexDirection: isMobile ? 'column' : 'unset',
+              alignItems: isMobile ? 'center' : 'flex-start',
             }}
           >
             <motion.div
