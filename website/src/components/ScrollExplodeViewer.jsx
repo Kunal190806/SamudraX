@@ -19,6 +19,13 @@ function AnimatedModel({ progressRef }) {
   // Clone scene so we can manipulate it without side effects
   const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
 
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Compute bounding box at t=0, auto-center and auto-scale
   const { offsetY, scaleFactor } = useMemo(() => {
     scene.updateMatrixWorld(true);
@@ -27,10 +34,10 @@ function AnimatedModel({ progressRef }) {
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
     return {
-      offsetY: -center.y,      // shift model so its center is at y=0
-      scaleFactor: 0.9 / maxDim // normalize to ~0.9 units tall so explosion stays in frame
+      offsetY: -center.y + (isMobile ? -1.5 : 0),      // shift model lower on mobile so it doesn't bunch at the top
+      scaleFactor: (isMobile ? 1.6 : 1.0) / maxDim // make model larger on mobile
     };
-  }, [scene]);
+  }, [scene, isMobile]);
 
   // Create AnimationMixer
   const { mixer, duration } = useMemo(() => {

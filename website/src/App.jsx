@@ -216,7 +216,7 @@ function App() {
       <section id="solution" style={{ background: 'rgba(0, 112, 254, 0.05)' }}>
         <FadeIn>
           <div className="content-grid">
-            <div className="cards-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+            <div className="cards-grid architecture-grid">
               <div className="card glass-panel">
                 <ShieldAlert className="card-icon" size={24} />
                 <h4>Octagonal Hull</h4>
