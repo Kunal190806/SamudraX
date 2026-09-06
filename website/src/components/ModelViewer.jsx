@@ -100,7 +100,9 @@ const ModelInner = ({
 
     g.traverse(o => {
       if (o.isMesh) {
-        if (o.name && /^Cylinder\.2(0[6-9]|1[0-4])$/.test(o.name)) {
+        const mat = o.material;
+        const isLabel = mat && (Array.isArray(mat) ? mat.some(m => m.name === 'Label_Glow') : mat.name === 'Label_Glow');
+        if (isLabel) {
           o.visible = false;
         } else {
           o.castShadow = true;
@@ -108,6 +110,14 @@ const ModelInner = ({
           if (fadeIn) {
             o.material.transparent = true;
             o.material.opacity = 0;
+          }
+          
+          // Manually pull out the battery cells from their casing in the exploded view
+          if (url.includes('exploded')) {
+            const isBattery = mat && (Array.isArray(mat) ? mat.some(m => m.name === 'Battery_Blue') : mat.name === 'Battery_Blue');
+            if (isBattery) {
+              o.position.y += 0.6;
+            }
           }
         }
       }

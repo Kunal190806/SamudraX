@@ -1,234 +1,137 @@
 /* eslint-disable react/no-unknown-property */
 import { Suspense, useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import { useGLTF, Environment } from '@react-three/drei';
+import { useScroll, useTransform } from 'framer-motion';
 import * as THREE from 'three';
 
-// Preload the animated explosion model
 useGLTF.preload('/models/samudrax-scroll-explode.glb');
 
 /**
- * AnimatedExplodeModel
- * Binds the 556-part explosion animation to the scroll progress.
- * Assembles at scroll=0, explodes smoothly as user scrolls.
+ * AnimatedModel — loads the animated GLB, auto-centers it,
+ * and scrubs its animation based on scroll progress.
  */
-function AnimatedExplodeModel({ progressRef, autoRotate = true }) {
+function AnimatedModel({ progressRef }) {
   const gltf = useGLTF('/models/samudrax-scroll-explode.glb');
-  const groupRef = useRef();
-  const currentP = useRef(0);
+  const wrapperRef = useRef();
+  const smoothProgress = useRef(0);
 
-  // Clone scene so materials/transforms are clean and properly centered
-  const clonedScene = useMemo(() => {
-    const s = gltf.scene.clone(true);
-    // Center the model at origin (0, 0, 0)
-    // The native Blender coordinates have the platform center at y = -4.80
-    s.position.set(0, 4.80, 0);
+  // Clone scene so we can manipulate it without side effects
+  const scene = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
 
-    s.traverse((o) => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        o.receiveShadow = true;
-        // Hide guide pins/lines if any
-        if (o.name && /^Cylinder\.2(0[6-9]|1[0-4])$/.test(o.name)) {
-          o.visible = false;
-        }
-      }
-    });
-    return s;
-  }, [gltf.scene]);
+  // Compute bounding box at t=0, auto-center and auto-scale
+  const { offsetY, scaleFactor } = useMemo(() => {
+    scene.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(scene);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    return {
+      offsetY: -center.y,      // shift model so its center is at y=0
+      scaleFactor: 0.9 / maxDim // normalize to ~0.9 units tall so explosion stays in frame
+    };
+  }, [scene]);
 
-  // Setup AnimationMixer
+  // Create AnimationMixer
   const { mixer, duration } = useMemo(() => {
-    if (!gltf.animations || gltf.animations.length === 0) {
-      return { mixer: null, duration: 0 };
-    }
-    const m = new THREE.AnimationMixer(clonedScene);
+    if (!gltf.animations?.length) return { mixer: null, duration: 0 };
+    const m = new THREE.AnimationMixer(scene);
     const clip = gltf.animations[0];
     const action = m.clipAction(clip);
     action.play();
-    action.paused = true; // Scrubbed by scroll
+    // Do not set paused=true, otherwise setTime won't evaluate the tracks
     return { mixer: m, duration: clip.duration };
-  }, [clonedScene, gltf.animations]);
+  }, [scene, gltf.animations]);
 
-  useFrame((state, delta) => {
-    if (!mixer || duration === 0 || !groupRef.current) return;
+  useFrame((_, delta) => {
+    if (!mixer || !duration || !wrapperRef.current) return;
 
-    // Smooth lerp for buttery scrubbing
-    const target = progressRef.current || 0;
-    currentP.current += (target - currentP.current) * 0.12;
-    const clamped = Math.max(0, Math.min(1, currentP.current));
+    // Smooth lerp toward target progress
+    const target = progressRef.current ?? 0;
+    smoothProgress.current += (target - smoothProgress.current) * 0.1;
+    const p = Math.max(0, Math.min(1, smoothProgress.current));
 
-    // Scrub animation time
-    mixer.setTime(clamped * duration);
+    // Scrub animation
+    mixer.setTime(p * duration);
 
-    // Responsive positioning:
-    // On desktop, keep model framed on the right at scroll 0 (x=0.35),
-    // and gently center (x=0.1) as text softens
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 900;
-    const targetX = isMobile ? 0 : 0.35 * (1 - clamped * 0.6);
-    groupRef.current.position.x = targetX;
+    // Very slow whole-model rotation so it's clearly visible
+    wrapperRef.current.rotation.y += delta * 0.05;
 
-    // Subtle gentle auto-rotation around Y
-    if (autoRotate) {
-      groupRef.current.rotation.y += delta * 0.35;
-    }
+    // Fast turbine rotation in opposite direction
+    scene.traverse((o) => {
+      if (o.name && o.name.toLowerCase().includes('turbine')) {
+        o.rotation.y -= delta * 2.5; 
+      }
+    });
   });
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 900;
-  const scale = isMobile ? 0.35 : 0.44;
-
   return (
-    <group ref={groupRef} position={[isMobile ? 0 : 0.35, 0, 0]} scale={scale}>
-      <primitive object={clonedScene} />
+    <group ref={wrapperRef} scale={scaleFactor} rotation={[0, -Math.PI / 4, 0]}>
+      <group position={[0, offsetY, 0]}>
+        <primitive object={scene} />
+      </group>
     </group>
   );
 }
 
 /**
- * ScrollExplodeViewer
- * Pinned hero 3D viewer that scrubs the native Blender keyframed explosion
- * as the user scrolls through the sticky hero container.
+ * ScrollExplodeViewer — the full hero 3D viewer.
+ * Renders a Canvas with the animated model and computes scroll progress.
  */
-export default function ScrollExplodeViewer({
-  sectionRef,
-  autoRotate = true,
-  onProgressChange,
-}) {
+export default function ScrollExplodeViewer({ sectionRef, onProgressChange }) {
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"]
+  });
+  
+  // We want the explosion to complete at 85% of the scroll
+  const explosionProgress = useTransform(scrollYProgress, [0, 0.85], [0, 1]);
+  
   const progressRef = useRef(0);
   const [hudProgress, setHudProgress] = useState(0);
 
   useEffect(() => {
-    let ticking = false;
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (!sectionRef?.current) {
-            ticking = false;
-            return;
-          }
-          const rect = sectionRef.current.getBoundingClientRect();
-          const sectionH = sectionRef.current.offsetHeight;
-          const windowH = window.innerHeight;
-
-          // scrolled from top of hero section
-          const scrolled = -rect.top;
-          const maxScroll = Math.max(1, sectionH - windowH);
-
-          // We map 0 -> 0.85 of the hero scroll travel to 0 -> 1.0 explosion
-          const p = Math.max(0, Math.min(1, scrolled / (maxScroll * 0.85)));
-          progressRef.current = p;
-          setHudProgress(p);
-          if (onProgressChange) onProgressChange(p);
-
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [sectionRef, onProgressChange]);
-
-  const progressPercent = Math.round(hudProgress * 100);
+    return explosionProgress.on("change", (latest) => {
+      // clamping between 0 and 1
+      const p = Math.max(0, Math.min(1, latest));
+      progressRef.current = p;
+      setHudProgress(p);
+      onProgressChange?.(p);
+    });
+  }, [explosionProgress, onProgressChange]);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}>
+    <div style={{ width: '100%', height: '100%' }}>
       <Canvas
-        camera={{ position: [0, 0, 3.8], fov: 45 }}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: 'high-performance',
-        }}
-        dpr={[1, 2]}
+        camera={{ position: [0, 0, 4], fov: 40 }}
+        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        dpr={[1, 1.5]}
       >
-        {/* Lights */}
-        <ambientLight intensity={1.5} />
-        <directionalLight
-          position={[5, 8, 5]}
-          intensity={2.5}
-          color="#ffffff"
-          castShadow
-        />
-        <directionalLight
-          position={[-5, 4, 3]}
-          intensity={1.5}
-          color="#00e5ff"
-        />
-        <directionalLight
-          position={[0, -5, -4]}
-          intensity={1.2}
-          color="#0070fe"
-        />
-        <pointLight position={[0, 2, 2]} intensity={1.0} color="#ffffff" />
-
-        <Environment preset="city" environmentIntensity={0.8} />
-
+        <ambientLight intensity={1.2} />
+        <directionalLight position={[5, 8, 5]} intensity={2.5} />
+        <directionalLight position={[-4, 3, -2]} intensity={1.0} color="#00e5ff" />
+        <directionalLight position={[0, -4, 4]} intensity={0.8} color="#0070fe" />
+        <Environment preset="city" environmentIntensity={0.6} />
         <Suspense fallback={null}>
-          <AnimatedExplodeModel
-            progressRef={progressRef}
-            autoRotate={autoRotate}
-          />
+          <AnimatedModel progressRef={progressRef} />
         </Suspense>
-
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          enableRotate={true}
-          rotateSpeed={0.8}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={(3 * Math.PI) / 4}
-        />
       </Canvas>
 
-      {/* Sleek Floating Status Pill */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 28,
-          right: 28,
-          zIndex: 15,
-          pointerEvents: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          padding: '8px 16px',
-          background: 'rgba(5, 16, 36, 0.75)',
-          border: '1px solid rgba(0, 229, 255, 0.3)',
-          borderRadius: '30px',
-          backdropFilter: 'blur(12px)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-          transition: 'all 0.3s ease',
-        }}
-      >
-        <div
-          style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: hudProgress >= 0.95 ? '#00e5ff' : hudProgress > 0 ? '#ffaa00' : '#4ade80',
-            boxShadow: `0 0 10px ${hudProgress >= 0.95 ? '#00e5ff' : hudProgress > 0 ? '#ffaa00' : '#4ade80'}`,
-            transition: 'all 0.3s ease',
-          }}
-        />
-        <span
-          style={{
-            fontFamily: 'monospace',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            letterSpacing: '0.08em',
-            color: '#e2e8f0',
-          }}
-        >
-          {hudProgress === 0
-            ? 'PLATFORM: ASSEMBLED (SCROLL TO EXPLODE)'
-            : hudProgress >= 0.95
-            ? 'ARCHITECTURE: FULLY EXPLODED (SCROLL DOWN)'
-            : `EXPLODING PLATFORM: ${progressPercent}%`}
-        </span>
+      {/* Progress badge */}
+      <div style={{
+        position: 'absolute', bottom: 20, right: 20, zIndex: 15,
+        pointerEvents: 'none', display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 14px', background: 'rgba(5,16,36,0.8)',
+        border: '1px solid rgba(0,229,255,0.3)', borderRadius: 24,
+        backdropFilter: 'blur(10px)', fontFamily: 'monospace',
+        fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em', color: '#e2e8f0',
+      }}>
+        <div style={{
+          width: 7, height: 7, borderRadius: '50%',
+          background: hudProgress >= 0.95 ? '#00e5ff' : hudProgress > 0.01 ? '#ffaa00' : '#4ade80',
+          boxShadow: `0 0 8px ${hudProgress >= 0.95 ? '#00e5ff' : hudProgress > 0.01 ? '#ffaa00' : '#4ade80'}`,
+        }} />
+        {hudProgress < 0.01 ? 'ASSEMBLED · SCROLL ↓' : hudProgress >= 0.95 ? 'EXPLODED · SCROLL ↓' : `EXPLODING ${Math.round(hudProgress * 100)}%`}
       </div>
     </div>
   );

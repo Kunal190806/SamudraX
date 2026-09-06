@@ -28,7 +28,7 @@ public/models/*
 !public/models/samudrax-complete-v8.glb
 !public/models/samudrax-exploded-v8.glb
 !public/models/samudrax-scroll-explode.glb
-public/videos/
-*.mp4
+public/videos/*
+!public/videos/turbine-web.mp4
 *.blend
 *.blend1

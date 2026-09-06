@@ -5,6 +5,7 @@ import InteractiveModelViewer from './components/InteractiveModelViewer';
 import ModelViewer from './components/ModelViewer';
 import ScrollExplodeViewer from './components/ScrollExplodeViewer';
 import MoltenMetal from './components/MoltenMetal';
+import EnergyFlowchart from './components/EnergyFlowchart';
 import './App.css';
 
 const FadeIn = ({ children, delay = 0 }) => (
@@ -64,44 +65,39 @@ function App() {
         </div>
       )}
 
-      {/* Hero Section — 280vh so user can scroll through explosion while it stays sticky */}
+      {/* Hero Section — 300vh tall so user scrolls through explosion while sticky */}
       <section
         className="hero"
         ref={heroRef}
-        style={{ height: '280vh', overflow: 'visible', position: 'relative' }}
+        style={{ height: '300vh', overflow: 'visible', position: 'relative' }}
       >
-        {/* Sticky visual frame — stays in viewport while parent scrolls */}
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
-          overflow: 'hidden',
-        }}>
-          {/* Background */}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}>
+        {/* Sticky frame — stays in viewport while parent scrolls */}
+        <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
+
+          {/* Layer 1: Background shader */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
             <MoltenMetal
-              color1="#051024"
-              color2="#0070fe"
-              color3="#00e5ff"
-              speed={0.15}
-              scale={2}
-              detail={3}
-              glow={1.2}
-              coreSize={0.15}
-              swirl={1}
-              fold={-0.1}
-              brightness={0.8}
-              mouseInteraction={true}
-              opacity={0.6}
+              color1="#051024" color2="#0070fe" color3="#00e5ff"
+              speed={0.15} scale={2} detail={3} glow={1.2}
+              coreSize={0.15} swirl={1} fold={-0.1}
+              brightness={0.8} mouseInteraction={true} opacity={0.6}
             />
           </div>
+
+          {/* Layer 2: 3D model (behind text) */}
+          <div className="hero-model-container">
+            <ScrollExplodeViewer
+              sectionRef={heroRef}
+              onProgressChange={setHeroProgress}
+            />
+          </div>
+
+          {/* Layer 3: Hero text (on top of model) */}
           <div
             className="hero-content"
             style={{
-              opacity: Math.max(0, 1 - Math.max(0, heroProgress - 0.4) * 2),
-              transform: `translateY(calc(-50% - ${heroProgress * 40}px))`,
-              pointerEvents: heroProgress > 0.7 ? 'none' : 'auto',
-              transition: 'opacity 0.15s ease-out, transform 0.15s ease-out',
+              opacity: heroProgress > 0.5 ? Math.max(0, 1 - (heroProgress - 0.5) * 4) : 1,
+              pointerEvents: heroProgress > 0.6 ? 'none' : 'auto',
             }}
           >
             <motion.div
@@ -177,14 +173,6 @@ function App() {
               <span className="scroll-arrow">↓</span>
               <span>SCROLL TO EXPLODE PLATFORM</span>
             </motion.div>
-          </div>
-
-          <div className="hero-model-container">
-            <ScrollExplodeViewer
-              sectionRef={heroRef}
-              autoRotate={true}
-              onProgressChange={setHeroProgress}
-            />
           </div>
         </div>
       </section>
@@ -276,28 +264,8 @@ function App() {
               <p>
                 The turbine is not a direct replacement for solar, nor is it restricted only to the North. The system can intelligently choose and use available energy sources depending on environmental conditions.
               </p>
-              <div className="glass-panel flowchart-box" style={{ padding: '1.25rem', marginTop: '1.5rem', fontFamily: 'monospace', fontSize: '0.82rem', lineHeight: '1.7', whiteSpace: 'pre', overflowX: 'auto', maxWidth: '100%' }}>
-{`       ☀️ SUNLIGHT             🌊 OCEAN CURRENT
-           ↓                          ↓
-    SOLAR PANELS                VAWT TURBINE
-           ↓                          ↓
-    MPPT CONTROLLER               GENERATOR
-           ↓                          ↓
-           │                      RECTIFIER
-           │                          ↓
-           │                HYDRO CHARGE CONTROL
-           │                          ↓
-           └───────────┐  ┌───────────┘
-                       ↓  ↓
-                  ┌──────────┐
-                  │ BATTERY  │
-                  └──────────┘
-                       ↓
-               POWER MANAGEMENT
-                       ↓
-         ┌─────────────┼─────────────┐
-         ↓             ↓             ↓
-      SENSORS      COMPUTING   COMMUNICATION`}
+              <div style={{ marginTop: '2rem' }}>
+                <EnergyFlowchart />
               </div>
             </div>
 
@@ -308,10 +276,10 @@ function App() {
                 width="100%"
                 height="680px"
                 autoRotate={false}
-                defaultZoom={5.2}
+                defaultZoom={5.8}
                 defaultRotationX={-10}
                 defaultRotationY={0}
-                modelYOffset={0.02}
+                modelYOffset={0.08}
                 enableManualZoom={false}
                 animateTurbine={true}
               />
@@ -418,9 +386,11 @@ function App() {
                   loop 
                   muted 
                   playsInline
-                  src="/videos/Turbine.mp4"
+                  src="/videos/turbine-web.mp4"
                   style={{ width: '100%', display: 'block', borderRadius: '8px' }}
-                />
+                >
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
           </div>

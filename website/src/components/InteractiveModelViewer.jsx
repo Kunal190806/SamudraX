@@ -1,36 +1,43 @@
 import React, { useState } from 'react';
+import { Sun, Cpu, BatteryCharging, Navigation, Droplets, Waves } from 'lucide-react';
 import ModelViewer from './ModelViewer';
 
 const componentsInfo = {
   solar: {
     title: "Solar Energy System",
     desc: "Generates electrical energy whenever sufficient sunlight is available. Extremely reliable with no moving parts.",
-    tech: "Marine-grade solar panels, MPPT Controller."
+    tech: "Marine-grade solar panels, MPPT Controller.",
+    icon: Sun,
   },
   electronics: {
     title: "Central Electronics",
     desc: "Waterproof internal compartment housing the computing and control architecture.",
-    tech: "Raspberry Pi (processing), ESP32 (control/sensor interfacing), MPPT, Hydro-Controller, Rectifier, Power Management System."
+    tech: "Raspberry Pi (processing), ESP32 (control/sensor interfacing), MPPT, Hydro-Controller, Rectifier, Power Management System.",
+    icon: Cpu,
   },
   battery: {
     title: "Battery & Power Management",
     desc: "Stores generated energy. The Power Management System distributes power between computing, sensors, and communication.",
-    tech: "LiFePO4 Battery, Smart BMS."
+    tech: "LiFePO4 Battery, Smart BMS.",
+    icon: BatteryCharging,
   },
   mast: {
     title: "Communication Mast",
     desc: "Contains the external communication and navigation equipment to transmit data to a remote station.",
-    tech: "GPS/GNSS, Communication antenna, Atmospheric sensors."
+    tech: "GPS/GNSS, Communication antenna, Atmospheric sensors.",
+    icon: Navigation,
   },
   sensors: {
     title: "Underwater Sensor Keel",
     desc: "Modular keel carrying six scientific instruments into the water. If one sensor needs maintenance, the entire platform doesn't need to be rebuilt.",
-    tech: "Sensors: Temp, Salinity, pH, DO, Turbidity, Pressure/Depth."
+    tech: "Sensors: Temp, Salinity, pH, DO, Turbidity, Pressure/Depth.",
+    icon: Droplets,
   },
   turbine: {
     title: "Underwater Vertical-Axis Turbine",
     desc: "Supplementary energy source harvesting energy from suitable ocean currents, particularly useful when solar availability is limited (e.g. polar winter).",
-    tech: "Curved rotor blades, vertical shaft, generator, bearings, waterproof seal."
+    tech: "Curved rotor blades, vertical shaft, generator, bearings, waterproof seal.",
+    icon: Waves,
   }
 };
 
@@ -46,15 +53,16 @@ export default function InteractiveModelViewer() {
       {/* 3D Canvas Area */}
       <div className="canvas-container">
         <ModelViewer 
+          key={isExploded ? 'exploded' : 'assembled'}
           url={currentModel} 
           width="100%"
           height="100%"
           autoRotate={!activeComponent} 
-          defaultZoom={isExploded ? 0.5 : 3}
-          defaultRotationX={isExploded ? -10 : -25}
-          defaultRotationY={0}
-          modelYOffset={isExploded ? 0.1 : 0.25}
-          scaleMultiplier={isExploded ? 8 : 1}
+          defaultZoom={isExploded ? 1.5 : 3.5}
+          defaultRotationX={isExploded ? -10 : -45}
+          defaultRotationY={isExploded ? 0 : 10}
+          modelYOffset={isExploded ? 0 : -0.2}
+          scaleMultiplier={1}
           enableManualZoom={true}
           enableManualRotation={true}
           enableMouseParallax={false}
@@ -84,15 +92,22 @@ export default function InteractiveModelViewer() {
         <p>Select a component to view technical details.</p>
         
         <div className="hotspot-buttons">
-          {Object.entries(componentsInfo).map(([key, info]) => (
-            <button 
-              key={key}
-              className={`hotspot-btn ${activeComponent === key ? 'active' : ''}`}
-              onClick={() => setActiveComponent(activeComponent === key ? null : key)}
-            >
-              {info.title}
-            </button>
-          ))}
+          {Object.entries(componentsInfo).map(([key, info]) => {
+            const Icon = info.icon;
+            const isActive = activeComponent === key;
+            return (
+              <button 
+                key={key}
+                className={`hotspot-btn ${isActive ? 'active' : ''}`}
+                onClick={() => setActiveComponent(isActive ? null : key)}
+              >
+                <div className="hotspot-icon-wrapper">
+                  <Icon size={18} />
+                </div>
+                <span>{info.title}</span>
+              </button>
+            );
+          })}
         </div>
 
         {activeComponent && (
