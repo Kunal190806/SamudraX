@@ -125,7 +125,7 @@ function App() {
               className="hero-badge"
             >
               <span className="badge-dot" />
-              <span>SIH 2024 • AUTONOMOUS POLAR OBSERVATION</span>
+              <span>SIH 2026 • AUTONOMOUS POLAR OBSERVATION</span>
             </motion.div>
 
             <motion.h1
